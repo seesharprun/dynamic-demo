@@ -1,0 +1,15 @@
+﻿@page "/"
+@inject ILogger<Home> logger
+@rendermode InteractiveServer
+
+<PageTitle>
+    Asynchronous Demo
+</PageTitle>
+<Toast />
+<LoadingIndicator />
+<section class="p-4 h-full bg-slate-900 text-white">
+    <h1 class="text-4xl font-bold mb-6 text-center text-blue-400">        
+        Asynchronous Demo
+    </h1>
+    <Retriever />
+</section>

@@ -1,0 +1,39 @@
+div[role="toast"] {
+    animation: slide-in 0.5s ease-in, slide-out 0.5s ease-out 10s, margin-transition 1s ease-out 10s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-out {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+        display: none;
+    }
+}
+
+@keyframes margin-transition {
+    from {
+        margin-bottom: 10px;
+    }
+
+    to {
+        margin-bottom: 0;
+    }
+}

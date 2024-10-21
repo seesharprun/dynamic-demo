@@ -1,0 +1,41 @@
+@inject IEventAggregatorService eventAggregator
+
+@if (Loading)
+{
+    <div class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div
+                class="spinner animate-spin h-48 w-48 border-8 ring-4 ring-offset-2 ring-offset-transparent border-blue-500/15 border-r-blue-500 divide-y divide-slate-700 border-t-blue-500 rounded-full mb-4">
+            </div>
+            <p class="text-white text-lg">
+                @Message
+            </p>
+        </div>
+    </div>
+}
+
+@code {
+    private string _defaultMessage = "Loading...";
+
+    public bool Loading { get; set; }
+    public string Message { get; set; } = String.Empty;
+
+    protected override void OnInitialized()
+    {
+        Loading = false;
+        Message = _defaultMessage;
+        eventAggregator.Subscribe<Loading>(OnLoadingAsync);
+    }
+
+    public async Task OnLoadingAsync(Loading payload)
+    {
+        Loading = payload.Show;
+        Message = payload.Message ?? _defaultMessage;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        eventAggregator.Unsubscribe<Loading>(OnLoadingAsync);
+    }
+}

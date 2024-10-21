@@ -1,0 +1,59 @@
+@inject IEventAggregatorService eventAggregator
+@inject IGeneratorService<Employee> employeeGenerator
+
+<section>
+    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        @onclick="AddAsync">
+        Generate person
+    </button>
+    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        @onclick="ClearAsync">
+        Clear
+    </button>
+    <table class="table-auto border-collapse border border-gray-300 mt-4 w-full text-black">
+        <thead class="bg-gray-800 text-white">
+            @if (Employees.Any())
+            {
+                <tr role="item">
+                    <th class="border border-gray-300 px-4 py-2 text-left">Id</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Email</th>
+                </tr>
+            }
+        </thead>
+        <tbody class="bg-gray-800 text-white">
+            @foreach (var employee in Employees)
+            {
+                <tr role="item" class="hover:bg-gray-700">
+                    <td class="border border-gray-300 px-4 py-2">@employee.Id</td>
+                    <td class="border border-gray-300 px-4 py-2">@employee.Name</td>
+                    <td class="border border-gray-300 px-4 py-2">@employee.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@code {
+    public List<Employee> Employees { get; set; } = new();
+
+    private async Task AddAsync()
+    {
+        await eventAggregator.PublishAsync<Loading>(new Loading { Show = true, Message = "Retrieving person..." });
+        var employee = employeeGenerator.Generate();
+        Employees.Add(employee);
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(TimeSpan.FromSeconds(1.5));
+        await eventAggregator.PublishAsync<Loading>(new Loading { Show = false });
+        await eventAggregator.PublishAsync<CreatedPerson>(new CreatedPerson { Person = employee });
+    }
+    
+    private async Task ClearAsync()
+    {
+        await eventAggregator.PublishAsync<Loading>(new Loading { Show = true, Message = "Clearing table..." });
+        Employees.Clear();
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(TimeSpan.FromSeconds(1.5));
+        await eventAggregator.PublishAsync<Loading>(new Loading { Show = false });
+    }
+}

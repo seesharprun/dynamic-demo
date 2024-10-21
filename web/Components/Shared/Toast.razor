@@ -1,0 +1,39 @@
+@implements System.IDisposable
+@inject IEventAggregatorService eventAggregator
+
+<div class="fixed top-2 right-2 flex flex-col space-y-1 z-100">
+    @foreach (var notification in ToastNotifications)
+    {
+        <div role="toast" class="min-w-72 bg-white border border-gray-300 rounded-lg shadow-lg shadow-2xl">
+            <div class="flex items-center justify-between p-2 bg-blue-500 text-white rounded-t-lg">
+                <div class="font-bold">@notification.Title</div>
+            </div>
+            <div class="border-t border-gray-300"></div>
+            <div class="p-4 text-black">
+                <span>@notification.Message</span>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Notification> ToastNotifications { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        eventAggregator.Subscribe<Notification>(OnNotificationAsync);
+    }
+
+    private async Task OnNotificationAsync(Notification payload)
+    {
+        ToastNotifications.Add(payload);
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(TimeSpan.FromSeconds(30));
+        ToastNotifications.Remove(payload);
+    }
+
+    public void Dispose()
+    {
+        eventAggregator.Unsubscribe<Notification>(OnNotificationAsync);
+    }
+}
